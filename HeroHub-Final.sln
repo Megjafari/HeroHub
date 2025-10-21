@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36414.22 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeroHub-Final", "HeroHub-Final.csproj", "{53E9B97E-EE12-4CED-8EDC-3C5383237824}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{53E9B97E-EE12-4CED-8EDC-3C5383237824}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53E9B97E-EE12-4CED-8EDC-3C5383237824}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53E9B97E-EE12-4CED-8EDC-3C5383237824}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53E9B97E-EE12-4CED-8EDC-3C5383237824}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B1D86291-8B04-4CF5-8D92-C51E7EA9F41A}
+	EndGlobalSection
+EndGlobal
