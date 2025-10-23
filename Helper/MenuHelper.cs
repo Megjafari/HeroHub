@@ -371,5 +371,33 @@ namespace HeroHub.Helpers
             Console.WriteLine($" {message}");
             Console.ResetColor();
         }
+        public static string ReadPassword()
+        {
+            string password = "";
+            ConsoleKeyInfo key; // Läs in tangenttryckningar utan att visa dem på skärmen
+
+            do
+            {
+                key = Console.ReadKey(true);
+
+                if (key.Key == ConsoleKey.Backspace && password.Length > 0)
+                {
+                    password = password[0..^1];
+                    Console.Write("\b \b");
+                }
+                else if (key.Key == ConsoleKey.Enter)
+                {
+                    break;
+                }
+                else if (!char.IsControl(key.KeyChar))
+                {
+                    password += key.KeyChar;
+                    Console.Write("*");
+                }
+            } while (true);
+
+            Console.WriteLine();
+            return password;
+        }
     }
 }

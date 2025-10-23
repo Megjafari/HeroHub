@@ -11,7 +11,7 @@ namespace HeroHub.Models
         public string username { get; set; }
         public string password { get; set; }
         public string email { get; set; }
-        public string? phonenumber { get; set; } // Made nullable to fix CS8618
+        public string phonenumber { get; set; } 
         public List<Quest> quests { get; set; } = new List<Quest>();
 
     }
