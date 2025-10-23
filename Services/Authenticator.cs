@@ -15,14 +15,20 @@ namespace HeroHub.Services
 
         public static void Register()
         {
-            Console.WriteLine("\n=== Register New Hero ===");
-            Console.Write("Enter Hero Name: ");
+            
+            Console.WriteLine("\n---Register New Hero---");
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine("Enter Hero Name: ");
+            
+            Console.ResetColor();
             string username = Console.ReadLine()!;
             
             string password;
             do
             {
-                Console.Write("Enter Password (min 6 chars, 1 uppercase, 1 digit, 1 special char): ");
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.Write("---Enter Password--- (min 6 chars, 1 uppercase, 1 digit, 1 special char): ");
+                Console.ResetColor();
                 password = MenuHelper.ReadPassword();
 
                 if (!PasswordValid(password))
@@ -32,8 +38,9 @@ namespace HeroHub.Services
             }while (!PasswordValid(password));
 
 
-            
-            Console.Write("Enter Phone Number for 2FA: ");
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write("---Enter Phone Number for 2FA---: ");
+            Console.ResetColor();
             string email = Console.ReadLine()!;
 
             currentHero = new User      //skapa en ny användare med angivna uppgifter
@@ -42,7 +49,7 @@ namespace HeroHub.Services
                 password = password,
                 email = email
             };
-
+            Console.Clear();
             Console.WriteLine($"Hero '{username}' registered successfully!\n");
         }
         private static bool PasswordValid(string password)
@@ -55,10 +62,14 @@ namespace HeroHub.Services
 
         public static User Login()
         {
-            Console.WriteLine("\n=== Hero Login ===");
+            Console.WriteLine("\n---Hero Login---");
+            Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write("Enter Hero Name: ");
+            Console.ResetColor();
             string username = Console.ReadLine()!;
+            Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write("Enter Password: ");
+            Console.ResetColor();
             string password = Console.ReadLine()!;
 
             currentHero = new User      //skapa en ny användare med angivna uppgifter
@@ -72,8 +83,9 @@ namespace HeroHub.Services
             string verificationCode = random.Next(1000, 9999).ToString();   //generera en fyrsiffrig kod
 
             TwoFactorService.SendVerificationCode(currentHero.phonenumber, verificationCode);   //skicka verifieringskoden via SMS
-
+            Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write("Enter the verification code sent to your phone: ");
+            Console.ResetColor();
             string inputCode = Console.ReadLine()!;
 
             if (inputCode == verificationCode)      //kontrollera om den angivna koden är korrekt

@@ -1,10 +1,13 @@
 ﻿using HeroHub.Models;
+using HeroHub.Services;
+using Spectre.Console;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using HeroHub.Services;
+
+
 
 
 
@@ -50,38 +53,39 @@ namespace HeroHub.Helpers
 
         private static bool ShowMainMenu()  // Visar huvudmenyn och hanterar användarval
         {
-            Console.Clear();
-            Console.WriteLine("=======================================");
-            Console.WriteLine("        QUEST GUILD TERMINAL");
-            Console.WriteLine("=======================================");
-            Console.WriteLine("1. Register Hero");
-            Console.WriteLine("2. Login Hero");
-            Console.WriteLine("3. Exit");
-            Console.WriteLine("=======================================");
-            Console.Write("Choose your path: ");
-
-            var choice = Console.ReadLine();
-
+            
+            var choice = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                
+                .PageSize(10)
+                .AddChoices(new[] {
+                        "Register Hero",
+                        "Login Hero",
+                        "Exit"
+                 }));
+                
             switch (choice) 
             {
-                case "1":
+                case "Register Hero":
                     Authenticator.Register();   
                     PressAnyKeyToContinue();
                     return true;
-                case "2":
+                case "Login Hero":
                     LoginHero();
                     return true;
-                case "3":
+                case "Exit":
                     return false;
                 default:
                     ShowErrorMessage("Invalid choice. Please try again.");
                     PressAnyKeyToContinue();
                     return true;
+     
             }
-        }
 
+        }
         private static void ShowAIMenu()    // Visar AI-meny och hanterar AI-relaterade funktioner
         {
+            Console.Clear();
             if (_aiAdvisor == null)
             {
                 ShowErrorMessage("AI features are disabled. Please check your API key configuration.");
@@ -91,18 +95,16 @@ namespace HeroHub.Helpers
             bool inAIMenu = true;
             while (inAIMenu)
             {
-                Console.Clear();
-                Console.WriteLine("=======================================");
-                Console.WriteLine("        GUILD ADVISOR - AI ASSISTANT");
-                Console.WriteLine("=======================================");
-                Console.WriteLine("1. Generate Quest Description");
-                Console.WriteLine("2. Suggest Quest Priority");
-                Console.WriteLine("3. Summarize All Quests");
-                Console.WriteLine("4. Back to Main Menu");
-                Console.WriteLine("=======================================");
-                Console.Write("Choose wisdom: ");
-
-                var choice = Console.ReadLine();
+                var choice = AnsiConsole.Prompt(
+           new SelectionPrompt<string>()
+               .Title("[purple] GUILD ADVISOR - AI ASSISTANT[/]")
+               .PageSize(10)
+               .AddChoices(new[] {
+                    "Generate Quest Description",
+                    "Suggest Quest Priority",
+                    "Summarize All Quests",
+                    "Back to Main Menu"
+               }));
 
                 switch (choice)
                 {
@@ -132,6 +134,7 @@ namespace HeroHub.Helpers
 
         private static void LoginHero()     // Hanterar inloggning av hjälte
         {
+            Console.Clear();
             var user = Authenticator.Login();
             if (user != null)
             {
@@ -148,43 +151,41 @@ namespace HeroHub.Helpers
 
         private static void ShowHeroMenu()  // Visar hjältemeny och hanterar hjälte-relaterade funktioner
         {
+            Console.Clear();
             bool inHeroMenu = true;
             while (inHeroMenu)  
             {
-                Console.Clear();
-                Console.WriteLine($"=======================================");
-                Console.WriteLine($"   WELCOME, {Authenticator.GetCurrentHero()?.username ?? "Hero"}!");
-                Console.WriteLine("        GUILD HEADQUARTERS");
-                Console.WriteLine("=======================================");
-                Console.WriteLine("1. Add New Quest");
-                Console.WriteLine("2. View All Quests");
-                Console.WriteLine("3. Update/Complete Quest");
-                Console.WriteLine("4. Request Guild Advisor Help (AI)");
-                Console.WriteLine("5. Show Guild Report");
-                Console.WriteLine("6. Logout");
-                Console.WriteLine("=======================================");
-                Console.Write("Choose your action: ");
-
-                var choice = Console.ReadLine();
+                var choice = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title($"[yellow] WELCOME, {Authenticator.GetCurrentHero()?.username ?? "Hero"}![/]")
+                .PageSize(10)
+                .AddChoices(new[] {
+                    "Add New Quest",
+                    "View All Quests",
+                    "Update/Complete Quest",
+                    "Request Guild Advisor Help (AI)",
+                    "Show Guild Report",
+                    "Logout"
+                }));
 
                 switch (choice)
                 {
-                    case "1":
+                    case "Add New Quest":
                         AddNewQuest();
                         break;
-                    case "2":
+                    case "View All Quests":
                         _questManager.ShowAllQuests();
                         break;
-                    case "3":
+                    case "Update/Complete Quest":
                         CompleteQuest();
                         break;
-                    case "4":
+                    case "Request Guild Advisor Help (AI)":
                         ShowAIMenu();
                         break;
-                    case "5":
+                    case "Show Guild Report":
                         _questManager.ShowReport();
                         break;
-                    case "6":
+                    case "Logout":
                         inHeroMenu = false;
                         ShowSuccessMessage("Logged out successfully.");
                         break;
@@ -203,10 +204,14 @@ namespace HeroHub.Helpers
         // Quest Management Methods
         private static void AddNewQuest()   // Hanterar tillägg av nya quests
         {
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write("Enter quest title: ");
+            Console.ResetColor();
             var title = Console.ReadLine();
-
+            Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write("Enter quest description (or press enter for AI generation): ");
+            Console.ResetColor();
             var description = Console.ReadLine();
 
             if (string.IsNullOrWhiteSpace(description))
@@ -214,8 +219,9 @@ namespace HeroHub.Helpers
                 description = _aiAdvisor.GenerateQuestDescriptionAsync(title).Result;
                 ShowInfoMessage($"AI-generated description: {description}");
             }
-
+            Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write("Enter due date (yyyy-mm-dd): ");
+            Console.ResetColor();
             if (!DateTime.TryParse(Console.ReadLine(), out var dueDate))
             {
                 ShowErrorMessage("Invalid date format.");
@@ -241,20 +247,25 @@ namespace HeroHub.Helpers
 
         private static void CompleteQuest()     // Hanterar slutförande av quests
         {
+            Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write("Enter the title of the quest to complete: ");
+            Console.ResetColor();
             var title = Console.ReadLine();
             _questManager.CompleteQuest(title);
         }
 
         // AI Methods
         private static async void GenerateQuestDescription()        // Hanterar generering av quest-beskrivningar med AI
-        {
+        {   
+            Console.Clear();
             if (_aiAdvisor == null)
             {
                 ShowErrorMessage("AI advisor is not available.");
                 return;
             }
+            Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write("Enter quest title for AI description: ");
+            Console.ResetColor();
             var title = Console.ReadLine();
             var description = await _aiAdvisor.GenerateQuestDescriptionAsync(title);
             ShowInfoMessage($"AI Guild Advisor says:\n{description}");
@@ -262,15 +273,19 @@ namespace HeroHub.Helpers
 
         private static async void SuggestQuestPriority()        // Hanterar förslag på quest-prioritet med AI
         {
+            Console.Clear();
             if (_aiAdvisor == null)
             {
                 ShowErrorMessage("AI advisor is not available.");
                 return;
             }
+            Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write("Enter quest title: ");
+            Console.ResetColor();
             var title = Console.ReadLine();
-
+            Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write("Enter due date (yyyy-mm-dd): ");
+            Console.ResetColor();
             if (DateTime.TryParse(Console.ReadLine(), out var dueDate))
             {
                 var suggestion = await _aiAdvisor.SuggestPriorityAsync(title, dueDate);
@@ -284,7 +299,7 @@ namespace HeroHub.Helpers
 
         private static async void SummarizeQuests()     // Hanterar sammanfattning av alla quests med AI
         {
-
+            Console.Clear();
             // Note: You might need to modify QuestManager to expose the quests list
             // For now, this will use AI without context
             var summary = await _aiAdvisor.SummarizeQuestsAsync(new List<Quest>());
@@ -295,31 +310,35 @@ namespace HeroHub.Helpers
         private static void ShowWelcomeScreen() // Visar välkomstskärmen
         {
             Console.Clear();
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("=======================================");
-            Console.WriteLine("      WELCOME TO QUEST GUILD");
-            Console.WriteLine("           HEROHUB ");
-            Console.WriteLine("=======================================");
-            Console.WriteLine("Where legends begin their journey...");
-            Console.WriteLine("=======================================");
-            Console.ResetColor();
-            PressAnyKeyToContinue();
+            AnsiConsole.Write(
+                new FigletText("HeroHub")
+                    .Centered()
+                    .Color(Color.Orange1));
+            AnsiConsole.Write(
+                new Panel("[bold White]Welcome, brave hero! Your adventures await...[/]")
+                    .Border(BoxBorder.Rounded)
+                    .BorderColor(Color.Orange1)
+                    .Padding(1, 1));
+             PressAnyKeyToContinue();
         }
 
         private static void ShowGoodbyeScreen()     // Visar avskedsskärmen
         {
             Console.Clear();
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine("=======================================");
-            Console.WriteLine("        FAREWELL, BRAVE HERO!");
-            Console.WriteLine("   May your adventures continue...");
-            Console.WriteLine("=======================================");
-            Console.ResetColor();
+            AnsiConsole.Write(
+                new FigletText("FAREWELL, BRAVE HERO! May your adventures continue...")
+                    .Centered()
+                    .Color(Color.Wheat1));
+            
+            PressAnyKeyToContinue();
+
+            
         }
 
         // Helper Methods
         public static void ShowQuestPriorityMenu()      // Visar meny för att välja quest-prioritet
         {
+            Console.Clear();
             Console.WriteLine("\n Select Quest Priority:");
             Console.WriteLine("1. High ");
             Console.WriteLine("2. Medium ");
@@ -329,6 +348,7 @@ namespace HeroHub.Helpers
 
         public static string GetPriorityText(int priorityChoice)        // Returnerar textrepresentation av prioritet baserat på användarval
         {
+            Console.Clear();
             return priorityChoice switch
             {
                 1 => "High ",
@@ -371,7 +391,7 @@ namespace HeroHub.Helpers
             Console.WriteLine($" {message}");
             Console.ResetColor();
         }
-        public static string ReadPassword()
+        public static string ReadPassword() // Läser in ett lösenord utan att visa det på skärmen
         {
             string password = "";
             ConsoleKeyInfo key; // Läs in tangenttryckningar utan att visa dem på skärmen
@@ -380,19 +400,19 @@ namespace HeroHub.Helpers
             {
                 key = Console.ReadKey(true);
 
-                if (key.Key == ConsoleKey.Backspace && password.Length > 0)
+                if (key.Key == ConsoleKey.Backspace && password.Length > 0)     // Hantera backspace
                 {
-                    password = password[0..^1];
-                    Console.Write("\b \b");
+                    password = password[0..^1];     // Ta bort sista tecknet
+                    Console.Write("\b \b");     // Ta bort asterisken från skärmen
                 }
-                else if (key.Key == ConsoleKey.Enter)
+                else if (key.Key == ConsoleKey.Enter)       
                 {
                     break;
                 }
-                else if (!char.IsControl(key.KeyChar))
+                else if (!char.IsControl(key.KeyChar))  // Lägg till tecken till lösenordet
                 {
                     password += key.KeyChar;
-                    Console.Write("*");
+                    Console.Write("*"); // Visa asterisk för varje tecken
                 }
             } while (true);
 
