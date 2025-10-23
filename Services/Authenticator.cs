@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
+using HeroHub.Helpers;
 using HeroHub.Models;
 
 namespace HeroHub.Services
@@ -17,9 +18,22 @@ namespace HeroHub.Services
             Console.WriteLine("\n=== Register New Hero ===");
             Console.Write("Enter Hero Name: ");
             string username = Console.ReadLine()!;
-            Console.Write("Enter Password: ");
-            string password = Console.ReadLine()!;
-            Console.Write("Enter Email: ");
+            
+            string password;
+            do
+            {
+                Console.Write("Enter Password (min 6 chars, 1 uppercase, 1 digit, 1 special char): ");
+                password = MenuHelper.ReadPassword();
+
+                if (!PasswordValid(password))
+                {
+                    Console.WriteLine("Invalid Password!");
+                }
+            }while (!PasswordValid(password));
+
+
+            
+            Console.Write("Enter Phone Number for 2FA: ");
             string email = Console.ReadLine()!;
 
             currentHero = new User      //skapa en ny användare med angivna uppgifter
@@ -30,6 +44,13 @@ namespace HeroHub.Services
             };
 
             Console.WriteLine($"Hero '{username}' registered successfully!\n");
+        }
+        private static bool PasswordValid(string password)
+        {
+            return password.Length >= 6 &&
+                   password.Any(char.IsDigit) &&
+                   password.Any(char.IsUpper) &&
+                   password.Any(ch => !char.IsLetterOrDigit(ch));
         }
 
         public static User Login()
