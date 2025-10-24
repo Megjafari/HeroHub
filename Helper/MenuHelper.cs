@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WMPLib;
 
 
 
@@ -17,21 +18,17 @@ namespace HeroHub.Helpers
     {
         private static QuestManager _questManager = new QuestManager();     // Hanterar quest relaterade operationer  
         private static GuildAdvisorAI _aiAdvisor;       // AI tjänst för guild-rådgivning
-
-        static MenuHelper() // Static constructor to initialize AI advisor
+        private static WindowsMediaPlayer _player = new WindowsMediaPlayer(); // Media player för ljuduppspelning
+         public static void StartMusic()
         {
-            try
-            {
-                _aiAdvisor = new GuildAdvisorAI();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Failed to initialize Guild Advisor AI: {ex.Message}");
-                _aiAdvisor = null;
-            }
+            WindowsMediaPlayer player = new WindowsMediaPlayer();
+            player.URL = "Erdtree.mp3"; // Filväg
+            player.settings.setMode("loop", true);
+            player.controls.play();
         }
-        public static void StartApplication()   // Startar huvudapplikationen och hanterar huvudmenyn
+         public static void StartApplication()   // Startar huvudapplikationen och hanterar huvudmenyn
         {
+            StartMusic();
             ShowWelcomeScreen();        
 
             bool running = true;
@@ -47,8 +44,7 @@ namespace HeroHub.Helpers
                     PressAnyKeyToContinue();
                 }
             }
-
-            ShowGoodbyeScreen();
+             ShowGoodbyeScreen();
         }
 
         private static bool ShowMainMenu()  // Visar huvudmenyn och hanterar användarval
@@ -66,22 +62,12 @@ namespace HeroHub.Helpers
                 
             switch (choice) 
             {
-                case "Register Hero":
-                    Authenticator.Register();   
-                    PressAnyKeyToContinue();
-                    return true;
-                case "Login Hero":
-                    LoginHero();
-                    return true;
-                case "Exit":
-                    return false;
-                default:
-                    ShowErrorMessage("Invalid choice. Please try again.");
-                    PressAnyKeyToContinue();
-                    return true;
-     
+                case "Register Hero": Authenticator.Register(); PressAnyKeyToContinue(); return true;
+                case "Login Hero": LoginHero(); return true;
+                case "Exit": return false;
+                default: ShowErrorMessage("Invalid choice. Please try again.");
+                         PressAnyKeyToContinue(); return true; 
             }
-
         }
         private static void ShowAIMenu()    // Visar AI-meny och hanterar AI-relaterade funktioner
         {
@@ -108,21 +94,11 @@ namespace HeroHub.Helpers
 
                 switch (choice)
                 {
-                    case "1":
-                        GenerateQuestDescription();
-                        break;
-                    case "2":
-                        SuggestQuestPriority();
-                        break;
-                    case "3":
-                        SummarizeQuests();
-                        break;
-                    case "4":
-                        inAIMenu = false;
-                        break;
-                    default:
-                        ShowErrorMessage("Invalid choice.");
-                        break;
+                    case "1": GenerateQuestDescription(); break;
+                    case "2": SuggestQuestPriority(); break;
+                    case "3": SummarizeQuests(); break;
+                    case "4": inAIMenu = false; break;
+                    default: ShowErrorMessage("Invalid choice."); break;
                 }
 
                 if (choice != "4")
@@ -131,8 +107,7 @@ namespace HeroHub.Helpers
                 }
             }
         }
-
-        private static void LoginHero()     // Hanterar inloggning av hjälte
+         private static void LoginHero()     // Hanterar inloggning av hjälte
         {
             Console.Clear();
             var user = Authenticator.Login();
@@ -148,8 +123,7 @@ namespace HeroHub.Helpers
                 PressAnyKeyToContinue();
             }
         }
-
-        private static void ShowHeroMenu()  // Visar hjältemeny och hanterar hjälte-relaterade funktioner
+          private static void ShowHeroMenu()  // Visar hjältemeny och hanterar hjälte-relaterade funktioner
         {
             Console.Clear();
             bool inHeroMenu = true;
@@ -170,35 +144,46 @@ namespace HeroHub.Helpers
 
                 switch (choice)
                 {
-                    case "Add New Quest":
-                        AddNewQuest();
-                        break;
-                    case "View All Quests":
-                        _questManager.ShowAllQuests();
-                        break;
-                    case "Update/Complete Quest":
-                        CompleteQuest();
-                        break;
-                    case "Request Guild Advisor Help (AI)":
-                        ShowAIMenu();
-                        break;
-                    case "Show Guild Report":
-                        _questManager.ShowReport();
-                        break;
-                    case "Logout":
-                        inHeroMenu = false;
-                        ShowSuccessMessage("Logged out successfully.");
-                        break;
-                    default:
-                        ShowErrorMessage("Invalid choice.");
-                        break;
+                    case "Add New Quest": AddNewQuest(); break;
+                    case "View All Quests": _questManager.ShowAllQuests(); break;
+                    case "Update/Complete Quest": CompleteQuest(); break;
+                    case "Request Guild Advisor Help (AI)": ShowAIMenu(); break;
+                    case "Show Guild Report": _questManager.ShowReport(); break;
+                    case "Logout": inHeroMenu = false; ShowSuccessMessage("Logged out successfully."); break;
+                    default: ShowErrorMessage("Invalid choice."); break;
                 }
-
                 if (choice != "6")
                 {
                     PressAnyKeyToContinue();
                 }
             }
+        }
+        public static string ReadPassword() // Läser in ett lösenord utan att visa det på skärmen
+        {
+            string password = "";
+            ConsoleKeyInfo key; // Läs in tangenttryckningar utan att visa dem på skärmen
+            do
+            {
+                key = Console.ReadKey(true);
+
+                if (key.Key == ConsoleKey.Backspace && password.Length > 0)     // Hantera backspace
+                {
+                    password = password[0..^1];     // Ta bort sista tecknet
+                    Console.Write("\b \b");     // Ta bort asterisken från skärmen
+                }
+                else if (key.Key == ConsoleKey.Enter)
+                {
+                    break;
+                }
+                else if (!char.IsControl(key.KeyChar))  // Lägg till tecken till lösenordet
+                {
+                    password += key.KeyChar;
+                    Console.Write("*"); // Visa asterisk för varje tecken
+                }
+            } while (true);
+
+            Console.WriteLine();
+            return password;
         }
 
         // Quest Management Methods
@@ -244,7 +229,6 @@ namespace HeroHub.Helpers
             _questManager.AddQuest(quest);
             ShowSuccessMessage("Quest added to your journal!");
         }
-
         private static void CompleteQuest()     // Hanterar slutförande av quests
         {
             Console.ForegroundColor = ConsoleColor.DarkGray;
@@ -258,11 +242,7 @@ namespace HeroHub.Helpers
         private static async void GenerateQuestDescription()        // Hanterar generering av quest-beskrivningar med AI
         {   
             Console.Clear();
-            if (_aiAdvisor == null)
-            {
-                ShowErrorMessage("AI advisor is not available.");
-                return;
-            }
+            
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write("Enter quest title for AI description: ");
             Console.ResetColor();
@@ -274,11 +254,7 @@ namespace HeroHub.Helpers
         private static async void SuggestQuestPriority()        // Hanterar förslag på quest-prioritet med AI
         {
             Console.Clear();
-            if (_aiAdvisor == null)
-            {
-                ShowErrorMessage("AI advisor is not available.");
-                return;
-            }
+            
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write("Enter quest title: ");
             Console.ResetColor();
@@ -321,7 +297,6 @@ namespace HeroHub.Helpers
                     .Padding(1, 1));
              PressAnyKeyToContinue();
         }
-
         private static void ShowGoodbyeScreen()     // Visar avskedsskärmen
         {
             Console.Clear();
@@ -391,33 +366,6 @@ namespace HeroHub.Helpers
             Console.WriteLine($" {message}");
             Console.ResetColor();
         }
-        public static string ReadPassword() // Läser in ett lösenord utan att visa det på skärmen
-        {
-            string password = "";
-            ConsoleKeyInfo key; // Läs in tangenttryckningar utan att visa dem på skärmen
-
-            do
-            {
-                key = Console.ReadKey(true);
-
-                if (key.Key == ConsoleKey.Backspace && password.Length > 0)     // Hantera backspace
-                {
-                    password = password[0..^1];     // Ta bort sista tecknet
-                    Console.Write("\b \b");     // Ta bort asterisken från skärmen
-                }
-                else if (key.Key == ConsoleKey.Enter)       
-                {
-                    break;
-                }
-                else if (!char.IsControl(key.KeyChar))  // Lägg till tecken till lösenordet
-                {
-                    password += key.KeyChar;
-                    Console.Write("*"); // Visa asterisk för varje tecken
-                }
-            } while (true);
-
-            Console.WriteLine();
-            return password;
-        }
+        
     }
 }
